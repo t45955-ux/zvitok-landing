@@ -83,3 +83,35 @@ fieldset{border:1px solid var(--line);border-radius:12px;margin:0 0 12px;padding
 .okmsg{background:#E6EEFB;border-radius:12px;padding:12px;font-weight:600}
 .toast{position:fixed;right:16px;bottom:16px;z-index:90;background:var(--navy);color:#fff;padding:12px 16px;border-radius:12px;max-width:min(420px,calc(100vw - 32px));box-shadow:0 12px 30px rgba(0,0,0,.3);transform:translateY(150%);transition:transform .25s;border-left:5px solid var(--yellow)}.toast.show{transform:none}
 .cfoot{padding-bottom:80px}
+/* profile form, generation, A4 document templates */
+.abadge.gb{border-style:solid;background:#E6EEFB}
+.hrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}.hrow h2{margin:0}
+.acts.cact{margin:10px 0 4px;display:flex;flex-wrap:wrap;gap:8px}
+.pform{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px}.pform .wide{grid-column:1/-1}.pform .fld label{display:block;font-weight:600;font-size:.85rem;margin-top:6px}
+.pform .err:empty,#g-err:empty{display:none}[aria-invalid=true]{border-color:var(--blue)!important;box-shadow:0 0 0 3px #FFC93C}
+@media(max-width:560px){.pform{grid-template-columns:1fr}}
+.dlg.docv{max-width:none;width:100%;height:100%;max-height:100%;margin:0;border-radius:0;padding:0;background:#E9EEF6}
+.dvbar{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--dark);color:#fff}
+.dvbar h2{font-size:1rem!important;margin:0;color:#fff}.dvbar .acts{display:flex;flex-wrap:wrap;gap:8px}.dvbar .btn{padding:9px 14px;font-size:.88rem}.dvbar .btn-o{background:#fff}
+.dvwrap{padding:24px 12px 48px;overflow-x:auto}
+.a4{position:relative;box-sizing:border-box;width:210mm;max-width:100%;min-height:297mm;margin:0 auto;background:#fff;color:var(--navy);padding:16mm 15mm;box-shadow:0 10px 40px rgba(11,22,48,.18);font-size:10.5pt;line-height:1.45;overflow:hidden}
+.a4 .wm{position:absolute;inset:0;display:grid;place-items:center;font-size:120pt;font-weight:800;color:rgba(11,61,145,.05);transform:rotate(-28deg);pointer-events:none}
+.a4h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:3px solid var(--blue);padding-bottom:10px}.a4h img{height:34px;width:auto}
+.a4w{background:var(--yellow);color:var(--navy);border:2px solid var(--navy);border-radius:6px;padding:6px 10px;font-size:9pt;text-align:right}
+.a4 h1{font-size:15pt;margin:14px 0 8px;line-height:1.25}.a4 h2{font-size:11pt!important;margin:14px 0 6px;color:var(--blue);text-transform:uppercase;letter-spacing:.04em}
+.a4 table{width:100%;border-collapse:collapse}.a4 th,.a4 td{border:1px solid #B9C8E2;padding:5px 8px;text-align:left;vertical-align:top}.a4 th{background:#F1F5FC;font-weight:600;width:42%}
+.a4m th{width:18%}.a4t.calc td{text-align:right;font-variant-numeric:tabular-nums}.a4 tr.tot th,.a4 tr.tot td{background:var(--navy);color:#fff;font-weight:800}
+.a4warn{background:#FFF3C4;border:1px solid var(--yellow);padding:6px 10px;margin-top:8px}
+.a4s{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:26px;font-size:9.5pt}.a4s .ln{display:block;border-bottom:1px solid var(--navy);height:26px;margin-bottom:4px}
+.a4p{margin-top:18px;font-size:8pt;color:var(--muted);border-top:1px dashed #B9C8E2;padding-top:8px}
+@media(max-width:760px){.a4{width:100%;min-height:0;padding:18px 14px;font-size:.82rem}.a4 .wm{font-size:64pt}.a4 th,.a4 td{padding:4px 6px}.a4m th{width:auto}.a4m,.a4m tbody,.a4m tr,.a4m th,.a4m td{display:block;width:auto}.a4h{flex-direction:column}.a4w{text-align:left}}
+body.dvfile{background:#E9EEF6;margin:0}
+@page{size:A4;margin:0}
+@media print{
+ body.printing>*:not(#docdlg){display:none!important}
+ body.printing #docdlg{position:static;display:block;width:auto;height:auto;max-height:none;overflow:visible;background:#fff;box-shadow:none}
+ body.printing #docdlg::backdrop{display:none}
+ .dvbar{display:none!important}.dvwrap{padding:0!important;overflow:visible}
+ .a4{box-shadow:none;margin:0;width:210mm;min-height:297mm;max-width:none}
+ .a4,.a4 *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}

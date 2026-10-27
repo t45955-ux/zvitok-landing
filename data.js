@@ -12,6 +12,34 @@ var FOPS=[
 {id:'f4',name:{uk:'ФОП Бондаренко Андрій Васильович',en:'FOP Andrii Bondarenko',ru:'ФОП Бондаренко Андрей Васильевич'},short:{uk:'Бондаренко А. В.',en:'Bondarenko A.',ru:'Бондаренко А. В.'},code:'90000104',group:1,emp:false,kved:['95.23'],bank:'ТестБанк · UA00 0000 0000 0000 0000 0000 104',phone:'+380 00 000 01 04',email:'a.bondarenko@example.com',reg:'2023-02-20',needDocs:false},
 {id:'f5',name:{uk:'ФОП Мельник Ірина Сергіївна',en:'FOP Iryna Melnyk',ru:'ФОП Мельник Ирина Сергеевна'},short:{uk:'Мельник І. С.',en:'Melnyk I.',ru:'Мельник И. С.'},code:'90000105',group:3,emp:true,kved:['85.59','85.52'],bank:'ДемоБанк · UA00 0000 0000 0000 0000 0000 105',phone:'+380 00 000 01 05',email:'iryna.melnyk@example.com',reg:'2020-09-10',needDocs:false},
 {id:'f6',name:{uk:'ФОП Ткаченко Богдан Миколайович',en:'FOP Bohdan Tkachenko',ru:'ФОП Ткаченко Богдан Николаевич'},short:{uk:'Ткаченко Б. М.',en:'Tkachenko B.',ru:'Ткаченко Б. Н.'},code:'90000106',group:2,emp:false,kved:['96.02'],bank:'ТестБанк · UA00 0000 0000 0000 0000 0000 106',phone:'+380 00 000 01 06',email:'b.tkachenko@example.com',reg:'2024-04-05',needDocs:true}];
+var ADDR={f1:'м. Київ, вул. Демонстраційна, 1, кв. 11',f2:'м. Львів, вул. Тестова, 22',f3:'м. Одеса, просп. Прикладний, 5, кв. 3',f4:'м. Дніпро, вул. Умовна, 14',f5:'м. Харків, вул. Зразкова, 8, кв. 40',f6:'м. Вінниця, вул. Вигадана, 31'};
+var MFO={'ДемоБанк':'300001','ТестБанк':'300002'};
+var BASEN={},DEF={};FOPS.forEach(function(f){BASEN[f.id]=f.name;var b=f.bank.split(' · ');f.bankName=b[0];f.mfo=MFO[b[0]];f.iban='UA00'+f.mfo+'0000026000000000'+f.code.slice(-3);f.bank=b[0]+' · '+f.iban.replace(/(.{4})/g,'$1 ').trim();f.addr=ADDR[f.id];DEF[f.id]=JSON.parse(JSON.stringify(f))});
+function defProf(f){f=DEF[f.id];return {name:BASEN[f.id].uk,code:f.code,group:f.group,addr:f.addr,phone:f.phone,email:f.email,bankName:f.bankName,iban:f.iban,mfo:f.mfo,kved:f.kved.join(', ')}}
+function applyProf(){FOPS.forEach(function(f){var p=S.prof&&S.prof[f.id];if(!p)return;var n=BASEN[f.id];f.name=p.name===n.uk?n:{uk:p.name,en:p.name,ru:p.name};f.short=p.name===n.uk?DEF[f.id].short:{uk:p.name,en:p.name,ru:p.name};
+ f.code=p.code;f.group=+p.group;f.addr=p.addr;f.phone=p.phone;f.email=p.email;f.bankName=p.bankName;f.iban=p.iban;f.mfo=p.mfo;f.kved=p.kved.split(/\s*,\s*/).filter(Boolean);f.bank=p.bankName+' · '+p.iban.replace(/(.{4})/g,'$1 ').trim()})}
+/* document templates: demo parameters for 2026 (illustrative, check current law before real use) */
+var P={minWage:8647,pm:3328,esvRate:0.22,esvMin:1902.34,ep1:0.10,ep2:0.20,ep3:0.05,vz3:0.01,vz12:864.70,pdfo:0.18,vzSal:0.05,lim1:1444049,lim2:7211598,lim3:10091049};
+var INC={f1:420000,f2:610000,f3:185000,f4:96000,f5:350000,f6:240000},PAY={f1:[24000,18500],f2:[16000,12000,9000],f5:[21000]};
+function r2(x){return Math.round(x*100)/100}
+function defInp(f,type){if(type==='ep3')return {income:INC[f.id]};if(type==='ep1'||type==='ep2')return {income:INC[f.id]*2};if(type==='df4')return {pay:(PAY[f.id]||[P.minWage]).slice()};if(type==='esv')return {base:P.minWage};if(type==='pay')return {what:f.group===3?'esv':'ep'};return {}}
+function calc(d){var g=d.gen,i=g.inp,R=[],T=0,q=g.type,f=g.snap;
+ if(q==='ep3'){var tx=r2(i.income*P.ep3),vz=r2(i.income*P.vz3);R=[['c_inc',i.income],['c_rate3','5%'],['c_tax',tx],['c_vz3',vz]];T=r2(tx+vz)}
+ else if(q==='ep1'||q==='ep2'){var m=q==='ep1'?r2(P.pm*P.ep1):r2(P.minWage*P.ep2),tx2=r2(m*12),vz2=r2(P.vz12*12);R=[['c_inc',i.income],['c_lim',q==='ep1'?P.lim1:P.lim2],['c_mon',m],['c_tax_y',tx2],['c_vz12',vz2]];T=r2(tx2+vz2);g.over=i.income>(q==='ep1'?P.lim1:P.lim2)}
+ else if(q==='df4'){var tot=0;i.pay.forEach(function(x){tot+=x*3});var pd=r2(tot*P.pdfo),vs=r2(tot*P.vzSal),es=0;i.pay.forEach(function(x){es+=Math.max(x,P.minWage)*P.esvRate*3});es=r2(es);R=[['c_emp',i.pay.length+''],['c_fund',r2(tot)],['c_pdfo',pd],['c_vzs',vs],['c_esve',es]];T=r2(pd+vs+es);g.staff=i.pay}
+ else if(q==='esv'){var b=Math.max(+i.base||0,P.minWage),c=r2(Math.max(b*P.esvRate,P.esvMin));R=[['c_base',b],['c_esvr','22%'],['c_esvmin',P.esvMin],['c_esv',c]];T=c}
+ else if(q==='pay'){var a=i.what==='esv'?P.esvMin:f.group==1?r2(P.pm*P.ep1):f.group==2?r2(P.minWage*P.ep2):r2((INC[d.fop]||0)/3*P.ep3);R=[['c_what','pw_'+i.what],['c_amt',a]];T=a}
+ return {rows:R,total:T}}
+function rtype(q){return q==='df4'?'df4':q==='esv'?'esv':q==='pay'?null:'ep'}
+function dueFor(type,period){if(/Q/.test(period)){var a=period.split('-Q'),y=+a[0],q=+a[1],m=q*3+1,yy=q===4?y+1:y;m=q===4?1:m;return add(yy+'-'+(m<10?'0':'')+m+'-01',39)}if(/^\d{4}$/.test(period))return (+period+1)+'-03-01';var b=period.split('-'),mm=+b[1]+1,yr=+b[0];if(mm>12){mm=1;yr++}return yr+'-'+(mm<10?'0':'')+mm+'-20'}
+function genDoc(fid,type,period,inp,quiet){var f=fop(fid),rt=rtype(type),r=null;
+ if(rt){S.reports.forEach(function(x){if(x.fop===fid&&x.type===rt&&x.period===period)r=x});
+  if(!r){r={id:'r'+(++S.seq),fop:fid,type:rt,period:period,deadline:dueFor(rt,period),status:'draft',auto:false,ref:'',subAt:''};S.reports.push(r);S.gkeys[fid+'|'+rt+'|'+period]=1}}
+ var old=null;S.docs.forEach(function(d){if(d.gen&&d.fop===fid&&d.gen.type===type&&d.gen.period===period)old=d});
+ S.dseq=(S.dseq||0)+1;var g={type:type,period:period,inp:inp||defInp(f,type),snap:S.prof[fid]?JSON.parse(JSON.stringify(S.prof[fid])):defProf(f),no:'ДЕМО-ШАБЛОН-'+String(1000+S.dseq),at:S.today,ver:old?old.gen.ver+1:1};
+ var d=old||{id:'g'+S.dseq+fid,fop:fid,cat:type==='pay'?'rcpt':'decl',tk:'gt_'+type};d.gen=g;d.date=S.today;d.rid=r?r.id:'';d.status=r&&r.status==='submitted'?'filed':'draft';
+ if(!old)S.docs.push(d);hist(fid,{k:old?'h_regen':'h_gendoc',n:type,p:period,rid:d.rid});if(!quiet)emit();return d}
+function saveProf(fid,p){S.prof[fid]=p;applyProf();hist(fid,{k:'h_prof'});remind();emit()}
 var ACC={name:{uk:'Петренко Марія Олександрівна',en:'Mariia Petrenko',ru:'Петренко Мария Александровна'},phone:'+380 00 000 00 77',email:'m.petrenko@example.com',hours:{uk:'Пн–Пт, 09:00–18:00',en:'Mon–Fri, 09:00–18:00',ru:'Пн–Пт, 09:00–18:00'}};
 function types(f){var t=['esv'];if(f.group===3)t.unshift('ep');if(f.emp)t.push('df4');return t}
 function seed(){
@@ -32,11 +60,13 @@ function seed(){
  log.sort(function(a,b){return a.ts<b.ts?1:-1});
  var g={};R.forEach(function(x){g[x.fop+'|'+x.type+'|'+x.period]=1});
  var af={};FOPS.forEach(function(f){af[f.id]=true});
- var s={v:2,today:BASE,lastRun:BASE,reports:R,docs:D,hist:H,notifs:[],nkeys:{},gkeys:g,log:log,seq:i,
+ var s={v:3,prof:{},dseq:0,today:BASE,lastRun:BASE,reports:R,docs:D,hist:H,notifs:[],nkeys:{},gkeys:g,log:log,seq:i,
   settings:{o7:true,o3:true,o1:true,email:true,tg:false,app:true},auto:{esv:true,ep:true,df4:true},autoFop:af,simErr:false,genLog:[{d:'2026-10-01',n:2}]};
+ S=s;FOPS.forEach(function(f){s.prof[f.id]=defProf(f)});applyProf();
+ genDoc('f1','ep3','2026-Q3',null,1);genDoc('f1','df4','2026-Q3',null,1);var e=genDoc('f1','esv','2026-10',null,1);s.docs.forEach(function(d){if(d.gen)d.date='2026-10-27'});
  return s}
 var S;try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
-var fresh=!S||S.v!==2;if(fresh)S=seed();
+var fresh=!S||S.v!==3;if(fresh){FOPS.forEach(function(f){f.name=BASEN[f.id]});S=seed()}else applyProf();
 var subs=[];
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function emit(){save();subs.forEach(function(f){f()})}
@@ -74,7 +104,7 @@ function nearest(id){var b=null;S.reports.forEach(function(r){if(r.fop===id&&r.s
 function hash(s){var h=7;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%99999989;return h}
 function makeRef(r){var n=String(hash(r.id+r.period+S.today+S.seq)).padStart(8,'0');return 'ДЕМО-'+(r.type==='esv'?'ПФУ':'ДПС')+'-'+n}
 function stamp(){var t=new Date();return S.today+' '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')}
-function submit(rid,via){var r=rep(rid);if(!r||r.status==='submitted')return;r.status='submitted';r.subAt=stamp();
+function submit(rid,via){var r=rep(rid);if(!r||r.status==='submitted')return;r.status='submitted';S.docs.forEach(function(d){if(d.gen&&d.rid===rid)d.status='filed'});r.subAt=stamp();
  if(via==='auto'){S.seq++;r.ref=makeRef(r);S.log.unshift({ts:r.subAt,fop:r.fop,rid:r.id,ch:r.type==='esv'?'pfu':'dps',ok:true,ref:r.ref});
   S.docs.push({id:'q'+r.id+'_'+S.seq,fop:r.fop,cat:'rcpt',tk:'d_rcpt',rid:r.id,ref:r.ref,date:S.today,status:'filed'});hist(r.fop,{k:'h_submit',rid:r.id,n:r.ref});notify('fop',r.fop,r.id,'sub',{ref:r.ref})}
  else hist(r.fop,{k:'h_manual',rid:r.id});emit();return r}
@@ -82,10 +112,10 @@ function failLog(rid){var r=rep(rid);S.log.unshift({ts:stamp(),fop:r.fop,rid:r.i
 function setDeadline(rid,d,k){var r=rep(rid);if(!r||!d)return;r.deadline=d;hist(r.fop,{k:k||'h_resched',rid:rid,dd:d});remind();emit()}
 function addReport(f,type,d){S.seq++;var p=S.today.split('-');var r={id:'r'+S.seq,fop:f,type:type,period:type==='esv'?p[0]+'-'+p[1]:p[0]+'-Q'+Math.ceil(p[1]/3),deadline:d,status:'draft',auto:false,ref:'',subAt:''};S.reports.push(r);hist(f,{k:'h_assign',rid:r.id,dd:d});remind();emit();return r}
 function setStatus(rid,st,k){var r=rep(rid);r.status=st;hist(r.fop,{k:k,rid:rid});emit()}
-function reset(){S=seed();remind();api.S=S;emit()}
+function reset(){S=seed();applyProf();remind();api.S=S;emit()}
 var api=window.ZV={S:S,BASE:BASE,FOPS:FOPS,ACC:ACC,types:types,fop:fop,rep:rep,left:left,fmt:fmt,dn:dn,add:add,on:function(f){subs.push(f)},emit:emit,save:save,
  setToday:setToday,remind:remind,runNow:function(){var n=runNow();remind();emit();return n},nextRuns:nextRuns,fopStatus:fopStatus,nearest:nearest,submit:submit,failLog:failLog,
- setDeadline:setDeadline,addReport:addReport,setStatus:setStatus,reset:reset,hist:hist,notify:notify,CAB_FOP:'f1'};
+ setDeadline:setDeadline,addReport:addReport,setStatus:setStatus,reset:reset,hist:hist,notify:notify,CAB_FOP:'f1',P:P,calc:calc,genDoc:genDoc,saveProf:saveProf,defInp:defInp,dueFor:dueFor,rtype:rtype};
 if(fresh){remind();save()}
-addEventListener('storage',function(e){if(e.key===KEY&&e.newValue){S=api.S=JSON.parse(e.newValue);subs.forEach(function(f){f()})}});
+addEventListener('storage',function(e){if(e.key===KEY&&e.newValue){S=api.S=JSON.parse(e.newValue);applyProf();subs.forEach(function(f){f()})}});
 })();

@@ -13,13 +13,13 @@ function chip(kind,txt){return '<span class="chip c-'+kind+'"><span aria-hidden=
 function rchip(r){return chip(r.status,t('rs_'+r.status))}
 function fchip(s){return chip(s,t('fs_'+s))}
 function dlCell(r){if(!r)return '<span class="muted">'+t('none')+'</span>';var l=Z.left(r),c=r.status==='submitted'?'':l<0?' over':l<=1?' soon':l<=7?' week':'';return '<span class="dl'+c+'">'+Z.fmt(r.deadline)+'</span> <small class="muted">'+(r.status==='submitted'?'':leftTxt(l))+'</small>'}
-function histTxt(e){var r=Z.rep(e.rid);return t(e.k,{r:rlabel(r),n:e.n,d:Z.fmt(e.dd)})}
+function histTxt(e){var r=Z.rep(e.rid);return t(e.k,{r:rlabel(r),n:e.p?t('gt_'+e.n)+', '+period(e.p):e.n,d:Z.fmt(e.dd)})}
 function ntTxt(n){var r=Z.rep(n.rid),p={r:rlabel(r),f:fname(n.fop,1),d:r?Z.fmt(r.deadline):'',n:n.kind,}; if(n.kind==='over')return t('nt_over',p);if(n.kind==='gen')return t('nt_gen',p);if(n.kind==='sub'){p.n=n.ref;return t('nt_sub',p)}if(n.kind==='man')return t('nt_man',p);return t('nt_rem',p)}
 /* toast */
 var toast=document.createElement('div');toast.className='toast';toast.setAttribute('role','status');toast.setAttribute('aria-live','polite');document.body.appendChild(toast);var tt;
 function say(m){toast.textContent=m;toast.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show')},3200)}
 /* dialogs */
-var opener=null;function openDlg(d){opener=document.activeElement;if(!d.open)d.showModal();var f=d.querySelector('[autofocus],button,input,select,textarea,a');if(f)f.focus()}
+var opener=null;function openDlg(d){if(!d.open){opener=document.activeElement;d.showModal()}var f=d.querySelector('[autofocus],button,input,select,textarea,a');if(f)f.focus()}
 function closeDlg(d){if(d.open)d.close()}
 document.addEventListener('close',function(e){if(e.target.tagName==='DIALOG'&&opener&&document.contains(opener)){opener.focus();opener=null}},true);
 document.addEventListener('click',function(e){var c=e.target.closest('[data-close]');if(c)closeDlg(c.closest('dialog'));if(e.target.tagName==='DIALOG')closeDlg(e.target)});
@@ -83,7 +83,7 @@ function run(r){var act=sbd.querySelector('#subact'),out=sbd.querySelector('#sub
    act.innerHTML='<button class="btn btn-o" id="rcdl">'+t('rc_dl')+'</button><button class="btn btn-b" data-close>'+t('close')+'</button>';act.querySelector('#rcdl').addEventListener('click',function(){receiptFile(x)});act.querySelector('[data-close]').focus();return}
   S[i].className='act';if(i===2&&fail){setTimeout(function(){S[2].className='fail';Z.failLog(r.id);out.innerHTML='<p class="warn">'+chip('err',t('lg_fail'))+' '+t('sb_err')+'</p>';act.innerHTML='<button class="btn btn-o" data-close>'+t('close')+'</button><button class="btn btn-y" id="retry">'+t('retry')+'</button>';var rb=act.querySelector('#retry');rb.focus();rb.addEventListener('click',function(){run(Z.rep(r.id))})},500);return}
   i++;setTimeout(step,/shot/.test(location.search)?60:550)})()}
-function dlFile(name,text){var b=new Blob([text],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
+function dlFile(name,text,mime){var b=new Blob([text],{type:(mime||'text/plain')+';charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
 function receiptFile(x){var f=Z.fop(x.fop);dlFile('zvitok_demo_receipt_'+x.id+'.txt',t('pv_txt',{t:t('rc_title')+' · '+rlabel(x),f:f.name[cur],c:f.code,d:x.subAt,s:t('rc_ok')})+'\n'+t('rc_no')+': '+x.ref+'\n')}
 /* language */
 function apply(){var tr=D[cur];document.documentElement.lang=cur;
