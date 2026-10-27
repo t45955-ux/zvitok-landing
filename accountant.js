@@ -1,0 +1,30 @@
+(function(){var Z=ZV,U=ZU,t=U.t,e=U.esc,$=function(i){return document.getElementById(i)},sortK='name',dir=1;
+var SO={over:0,sign:1,docs:2,ok:3};
+function rows(){var q=$('fq').value.trim().toLowerCase(),g=$('fg').value,s=$('fs').value,d=$('fd').value,L=U.lang();
+ var A=Z.FOPS.map(function(f){var n=Z.nearest(f.id);return {f:f,st:Z.fopStatus(f.id),n:n,l:n?Z.left(n):1e9}});
+ var F=A.filter(function(x){if(q&&(x.f.name[L]+' '+x.f.name.uk+' '+x.f.code).toLowerCase().indexOf(q)<0)return false;if(g&&x.f.group!=g)return false;if(s&&x.st!==s)return false;
+  if(d==='d7'&&!(x.l>=0&&x.l<=7))return false;if(d==='over'&&!(x.l<0))return false;if(d==='m'&&!(x.n&&x.n.deadline.slice(0,7)===Z.S.today.slice(0,7)))return false;return true});
+ F.sort(function(a,b){var v=sortK==='name'?a.f.name[L].localeCompare(b.f.name[L],L):sortK==='code'?a.f.code.localeCompare(b.f.code):sortK==='group'?a.f.group-b.f.group:sortK==='status'?SO[a.st]-SO[b.st]:a.l-b.l;return v*dir});
+ $('found').textContent=t('found',{n:F.length,m:A.length});
+ $('ftab').tBodies[0].innerHTML=F.length?F.map(function(x){return '<tr class="click" data-card="'+x.f.id+'"><td data-l="'+t('th_name')+'"><button class="lnk strong" data-card="'+x.f.id+'">'+e(x.f.name[L])+'</button></td><td data-l="'+t('th_code')+'">'+x.f.code+'</td><td data-l="'+t('th_group')+'">'+x.f.group+'</td><td data-l="'+t('th_status')+'">'+U.fchip(x.st)+'</td><td data-l="'+t('th_dl')+'">'+(x.n?e(U.rlabel(x.n))+'<br>':'')+U.dlCell(x.n)+'</td></tr>'}).join(''):'<tr><td colspan="5" class="muted">'+t('nores')+'</td></tr>'}
+$('ftab').tHead.addEventListener('click',function(ev){var th=ev.target.closest('th');if(!th)return;var k=th.dataset.k;if(k===sortK)dir=-dir;else{sortK=k;dir=1}
+ this.querySelectorAll('th').forEach(function(h){h.setAttribute('aria-sort',h.dataset.k===sortK?(dir>0?'ascending':'descending'):'none')});rows()});
+['fq','fg','fs','fd'].forEach(function(i){$(i).addEventListener('input',rows)});
+$('ftab').tBodies[0].addEventListener('click',function(ev){var tr=ev.target.closest('[data-card]');if(tr)U.openCard(tr.dataset.card)});
+function sched(){var all=$('showsub').checked,L=U.lang();
+ var R=Z.S.reports.filter(function(r){return all||r.status!=='submitted'}).sort(function(a,b){return (a.status==='submitted')-(b.status==='submitted')||(a.deadline<b.deadline?-1:a.deadline>b.deadline?1:0)});
+ $('stab').tBodies[0].innerHTML=R.map(function(r){return '<tr id="r-'+r.id+'"><td data-l="'+t('th_name')+'"><button class="lnk strong" data-card="'+r.fop+'">'+e(U.fname(r.fop,1))+'</button></td><td data-l="'+t('th_rep')+'">'+e(U.rlabel(r))+(r.auto?' <span class="abadge">'+t('auto_b')+'</span>':'')+'</td><td data-l="'+t('th_dl')+'">'+U.dlCell(r)+'</td><td data-l="'+t('th_status')+'">'+U.rchip(r)+'</td><td data-l="'+t('th_act')+'" class="acts">'+U.repActions(r)+'</td></tr>'}).join('')}
+$('showsub').addEventListener('change',sched);U.bindActions($('stab'));
+$('addf').addEventListener('submit',function(ev){ev.preventDefault();if(!$('ad').value)return;var r=Z.addReport($('af').value,$('at').value,$('ad').value);U.say(t('tt_added'))});
+function auto(){var N=Z.nextRuns(),A=Z.S.auto;
+ $('rules').innerHTML='<h3>'+t('au_title')+'</h3>'+['esv','ep','df4'].map(function(k){return '<label class="tg rule"><input type="checkbox" data-rule="'+k+'"'+(A[k]?' checked':'')+'><span>'+t('au_'+k)+'<br><small class="muted">'+t('au_next')+': '+Z.fmt(N[k])+'</small></span></label>'}).join('')+'<p class="note">'+t('au_ep12')+' '+t('au_next')+': '+Z.fmt(N.ep12)+'</p><button class="btn btn-y" id="runnow">'+t('au_run')+'</button>'+
+ '<label class="tg"><input type="checkbox" id="simerr2"'+(Z.S.simErr?' checked':'')+'> '+t('sim_err')+'</label><h3>'+t('au_log')+'</h3><ul class="clist small">'+Z.S.genLog.slice(0,8).map(function(g){return '<li>'+(g.n?t('au_logi',{d:Z.fmt(g.d),n:g.n}):Z.fmt(g.d)+': '+t('au_none'))+'</li>'}).join('')+'</ul>';
+ $('afops').innerHTML='<h3>'+t('au_fops')+'</h3>'+Z.FOPS.map(function(f){return '<label class="tg"><input type="checkbox" data-af="'+f.id+'"'+(Z.S.autoFop[f.id]?' checked':'')+'> '+e(U.fname(f.id,1))+' <small class="muted">('+Z.types(f).map(function(x){return t('ty_'+x)}).join(', ')+')</small></label>'}).join('')}
+$('automation').addEventListener('change',function(ev){var d=ev.target.dataset;if(d.rule)Z.S.auto[d.rule]=ev.target.checked;else if(d.af)Z.S.autoFop[d.af]=ev.target.checked;else if(ev.target.id==='simerr2')Z.S.simErr=ev.target.checked;Z.emit()});
+$('automation').addEventListener('click',function(ev){if(ev.target.id==='runnow'){var n=Z.runNow();U.say(n?t('au_ran',{n:n}):t('au_none'));$('runnow').focus()}});
+function log(){$('ltab').tBodies[0].innerHTML=Z.S.log.length?Z.S.log.map(function(l){var r=Z.rep(l.rid);return '<tr><td data-l="'+t('lg_time')+'">'+Z.fmt(l.ts.slice(0,10))+' '+l.ts.slice(11)+'</td><td data-l="'+t('lg_fop')+'">'+e(U.fname(l.fop,1))+'</td><td data-l="'+t('lg_doc')+'">'+e(U.rlabel(r))+'</td><td data-l="'+t('lg_ch')+'">'+t(l.ch==='pfu'?'ch_pfu':'ch_dps')+'</td><td data-l="'+t('lg_st')+'">'+(l.ok?U.chip('submitted',t('rc_ok')):U.chip('err',t('lg_fail')))+'</td><td data-l="'+t('lg_ref')+'">'+(l.ref||'·')+'</td></tr>'}).join(''):'<tr><td colspan="6" class="muted">'+t('lg_empty')+'</td></tr>'}
+U.render=function(){U.counters($('counters'));var v=$('af').value;$('af').innerHTML=Z.FOPS.map(function(f){return '<option value="'+f.id+'">'+e(U.fname(f.id,1))+'</option>'}).join('');if(v)$('af').value=v;if(!$('ad').value)$('ad').value=Z.add(Z.S.today,14);rows();sched();auto();log()};
+U.start();
+var m=location.hash.match(/^#fop=(f\d)/);if(m)U.openCard(m[1]);else if(/^#r-/.test(location.hash)){var el=document.querySelector(location.hash);if(el){$('showsub').checked=true;sched();el=document.querySelector(location.hash);el.classList.add('hl');el.scrollIntoView({block:'center'})}}
+addEventListener('hashchange',function(){var x=location.hash.match(/^#r-(r\d+)/);if(x){$('showsub').checked=true;sched();var el=$('r-'+x[1]);if(el){el.classList.add('hl');el.scrollIntoView({block:'center'})}}});
+})();

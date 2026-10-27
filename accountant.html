@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Звиток (демо)</title>
+<meta name="theme-color" content="#0B3D91"><meta name="robots" content="noindex">
+<link rel="icon" href="assets/favicon.ico" sizes="any"><link rel="icon" type="image/png" href="assets/favicon-32.png"><link rel="apple-touch-icon" href="assets/android-chrome-192.png">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="cabinet.css">
+</head>
+<body data-page="acc" data-title="t_acc">
+<main id="main" class="cab">
+<section class="chead"><div class="wrap">
+ <span class="eyebrow" data-i18n="nav_acc"></span><h1 data-i18n="a_h1"></h1><p class="lead" data-i18n="a_lead"></p>
+ <div class="counters" id="counters"></div>
+</div></section>
+
+<section class="cs" aria-labelledby="h-fops"><div class="wrap">
+ <h2 id="h-fops" data-i18n="tb_title"></h2>
+ <div class="filters">
+  <div><label for="fq" data-i18n="search"></label><input id="fq" type="search" data-i18n-ph="search" autocomplete="off"></div>
+  <div><label for="fg" data-i18n="f_group"></label><select id="fg"><option value="" data-i18n="all"></option><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+  <div><label for="fs" data-i18n="f_status"></label><select id="fs"><option value="" data-i18n="all"></option><option value="ok" data-i18n="fs_ok"></option><option value="docs" data-i18n="fs_docs"></option><option value="sign" data-i18n="fs_sign"></option><option value="over" data-i18n="fs_over"></option></select></div>
+  <div><label for="fd" data-i18n="f_dl"></label><select id="fd"><option value="" data-i18n="all"></option><option value="d7" data-i18n="dl_7"></option><option value="m" data-i18n="dl_m"></option><option value="over" data-i18n="dl_over"></option></select></div>
+ </div>
+ <p class="muted small" id="found" aria-live="polite"></p>
+ <div class="tcard"><table class="dt rt" id="ftab"><thead><tr>
+  <th aria-sort="ascending" data-k="name"><button data-i18n="th_name"></button></th><th aria-sort="none" data-k="code"><button data-i18n="th_code"></button></th><th aria-sort="none" data-k="group"><button data-i18n="th_group"></button></th><th aria-sort="none" data-k="status"><button data-i18n="th_status"></button></th><th aria-sort="none" data-k="dl"><button data-i18n="th_dl"></button></th>
+ </tr></thead><tbody></tbody></table></div>
+</div></section>
+
+<section class="cs alt" aria-labelledby="h-sch" id="schedule"><div class="wrap">
+ <h2 id="h-sch" data-i18n="sc_title"></h2><p class="muted" data-i18n="sc_lead"></p>
+ <form class="addf" id="addf"><b data-i18n="add_title"></b>
+  <div><label for="af" data-i18n="th_name"></label><select id="af" required></select></div>
+  <div><label for="at" data-i18n="th_rep"></label><select id="at"><option value="ep" data-i18n="ty_ep"></option><option value="df4" data-i18n="ty_df4"></option><option value="esv" data-i18n="ty_esv"></option></select></div>
+  <div><label for="ad" data-i18n="new_dl"></label><input type="date" id="ad" required></div>
+  <button class="btn btn-b" data-i18n="add_btn"></button>
+ </form>
+ <label class="tg"><input type="checkbox" id="showsub"> <span data-i18n="show_sub"></span></label>
+ <div class="tcard"><table class="dt rt" id="stab"><thead><tr><th data-i18n="th_name"></th><th data-i18n="th_rep"></th><th data-i18n="th_dl"></th><th data-i18n="th_status"></th><th data-i18n="th_act"></th></tr></thead><tbody></tbody></table></div>
+</div></section>
+
+<section class="cs" aria-labelledby="h-auto" id="automation"><div class="wrap">
+ <h2 id="h-auto"><span class="dtag">ДЕМО</span> <span data-i18n="au_title"></span></h2><p class="muted" data-i18n="au_lead"></p>
+ <div class="agrid"><div class="panel" id="rules"></div><div class="panel" id="afops"></div></div>
+</div></section>
+
+<section class="cs alt" aria-labelledby="h-log" id="log"><div class="wrap">
+ <h2 id="h-log"><span class="dtag">ДЕМО</span> <span data-i18n="lg_title"></span></h2>
+ <div class="tcard"><table class="dt rt" id="ltab"><thead><tr><th data-i18n="lg_time"></th><th data-i18n="lg_fop"></th><th data-i18n="lg_doc"></th><th data-i18n="lg_ch"></th><th data-i18n="lg_st"></th><th data-i18n="lg_ref"></th></tr></thead><tbody></tbody></table></div>
+</div></section>
+</main>
+<script src="i18n.js"></script><script src="cab-i18n.js"></script><script src="data.js"></script><script src="common.js"></script><script src="fopcard.js"></script><script src="accountant.js"></script>
+</body></html>
